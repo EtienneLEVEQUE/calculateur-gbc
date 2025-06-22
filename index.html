@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur Cotisation GBC 2025-2026</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    h1 { color: #c00000; }
+    .bloc { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input[type="number"], select, input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; }
+    .resultat { font-size: 1.5em; color: #c00000; font-weight: bold; }
+    .ligne-categorie { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+    .reduc-description { font-size: 0.9em; color: #555; margin-bottom: 5px; margin-left: 20px; }
+    .reductions-group { margin-left: 20px; margin-top: 10px; }
+    #reduc-famille-label { color: red; font-weight: bold; margin-top: -10px; margin-bottom: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Calculateur Cotisation GBC 2025-2026</h1>
+
+  <div class="bloc">
+    <label for="nb_lignes">Combien de licences souhaitez-vous enregistrer ?</label>
+    <select id="nb_lignes" onchange="genererLignesLicences()">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+  </div>
+
+  <div class="bloc" id="formulaire">
+    <!-- Les lignes de licences seront générées ici -->
+  </div>
+
+  <div class="bloc">
+    <h2 style="color:#c00000; margin-top:0">Boutique prix spécial rentrée !</h2>
+    <label for="nb_tshirts">T-shirt club avec prénom dans le dos : <del>16 €</del> 14 € / pièce</label>
+    <select id="nb_tshirts">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <div id="tshirt-details"></div>
+    <hr>
+    <label for="nb_survets">Pack Survêtement : <del>60 €</del> 45 € / pièce <a href="https://clubshop.macron.com/rennes/granville-basket-club/kit/granvillebasketclub-kit-18060-965" target="_blank">(voir les survêtements)</a> <a href="https://clubshop.macron.com/rennes/size-guide/" target="_blank">(guide des tailles)</a></label>
+    <select id="nb_survets">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <div id="survet-details"></div>
+  </div>
+
+  <div class="bloc">
+    <p id="reduc-famille-label"></p>
+    <p>Total à payer :</p>
+    <p class="resultat" id="total">0 €</p>
+  </div>
+
+<script>
+function genererLignesLicences() {
+  const nb = parseInt(document.getElementById("nb_lignes").value);
+  const conteneur = document.getElementById("formulaire");
+  conteneur.innerHTML = "";
+  for (let i = 1; i <= nb; i++) {
+    const bloc = document.createElement("div");
+    bloc.className = "ligne-categorie";
+    bloc.innerHTML = `
+      <h3>${i}ᵉ licence</h3>
+      <label>Année de naissance - Catégorie :</label>
+      <select>
+        <option>2021-2022 - U5 (100 €)</option>
+        <option>2019-2020 - U7 (140 €)</option>
+        <option>2017-2018 - U9 (145 €)</option>
+        <option>2015-2016 - U11 (145 €)</option>
+        <option>2013-2014 - U13 (165 €)</option>
+        <option>2011-2012 - U15 (165 €)</option>
+        <option>2008-2009-2010 - U18 (180 €)</option>
+        <option>2008 et avant - Senior compétition (185 €)</option>
+        <option>2008 et avant - Senior loisir (130 €)</option>
+      </select>
+      <label>Niveau d'assurance : <a href="https://api.ffbb.com/assets/cd6c7824-16f0-47fb-a9cb-42504a2775b6?download" target="_blank">voir les détails ici</a></label>
+      <select>
+        <option>Sans assurance</option>
+        <option>A (2.09€)</option>
+        <option>B (6.39€)</option>
+        <option>C (0.50€)</option>
+        <option>A + C (2.59€)</option>
+        <option>B + C (6.89€)</option>
+      </select>
+      <div class="reductions-group">
+        <label><input type="checkbox"> Réduction « Coupon sport Granville »</label>
+        <div class="reduc-description">50 € pour les personnes résidant à Granville, nées entre le 16 septembre 2007 et le 31 décembre 2019 et bénéficiant de l’allocation de rentrée scolaire ( fournir l'attestation CAF avant le 15/11/2025 )</div>
+
+        <label><input type="checkbox"> Réduction « Pass'Sport »</label>
+        <div class="reduc-description">50 € pour les personnes de 6 à 17 ans bénéficiant soit de l’allocation de rentrée scolaire ou de l’allocation d’éducation de l’enfant handicapé (fournir l'attestation CAF avant le 15/12/2025)</div>
+
+        <label><input type="checkbox"> Réduction « CCAS Saint-Pair/Mer »</label>
+        <div class="reduc-description">15 € pour les personnes –10 ans en bénéficiant</div>
+
+        <label><input type="checkbox" class="spot-checkbox"> Réduction « Spot 50 »</label>
+        <div class="reduc-description">Jusqu'à 25 € pour les personnes en bénéficiant</div>
+        <input type="text" class="hidden spot-num" placeholder="Numéro de carte :">
+
+        <label><input type="checkbox" class="atout-checkbox"> Réduction « Atouts Normandie »</label>
+        <div class="reduc-description">Jusqu'à 30 € pour les personnes en bénéficiant</div>
+        <input type="text" class="hidden atout-num" placeholder="Numéro :">
+        <input type="text" class="hidden atout-code" placeholder="Code :">
+      </div>
+    `;
+    conteneur.appendChild(bloc);
+  }
+  activerChampsReductions();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  genererLignesLicences();
+});
+
+function activerChampsReductions() {
+  document.querySelectorAll('.spot-checkbox').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      const num = checkbox.closest('label').nextElementSibling.nextElementSibling;
+      if (num) num.classList.toggle('hidden', !checkbox.checked);
+    });
+  });
+
+  document.querySelectorAll('.atout-checkbox').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      const num = checkbox.closest('label').nextElementSibling.nextElementSibling;
+      const code = num ? num.nextElementSibling : null;
+      if (num) num.classList.toggle('hidden', !checkbox.checked);
+      if (code) code.classList.toggle('hidden', !checkbox.checked);
+    });
+  });
+}
+</script>
+</body>
+</html>
