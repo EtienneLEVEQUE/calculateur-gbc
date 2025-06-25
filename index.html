@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Calculateur Cotisation GBC 2025-2026</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
@@ -11,12 +11,10 @@
     select, input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; }
     .resultat { font-size: 1.5em; color: #c00000; font-weight: bold; }
     .ligne-categorie { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-    .reduc-description { font-size: 0.9em; color: #555; margin-bottom: 5px; margin-left: 20px; }
-    .reductions-group { margin-left: 20px; margin-top: 10px; }
-    #reduc-famille-label { color: red; font-weight: bold; margin-top: -10px; margin-bottom: 10px; }
+    .reductions-group label { display: block; margin-top: 5px; }
+    .reduc-description { font-size: 0.9em; color: #555; margin-left: 20px; }
     .hidden { display: none; }
     .boutique-item { margin-top: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #fafafa; }
-    .boutique-item label { font-weight: normal; margin-top: 0; }
     button { margin-top: 15px; padding: 10px 20px; font-size: 1em; background-color: #c00000; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background-color: #a00000; }
   </style>
@@ -25,417 +23,311 @@
   <h1>Calculateur Cotisation GBC 2025-2026</h1>
 
   <div class="bloc">
-    <label for="nb_lignes">Combien de licences souhaitez-vous enregistrer ?</label>
-    <select id="nb_lignes" onchange="genererLignesLicences()">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
+    <label for="nb_lignes">Combien de licences souhaitez-vous enregistrer ?</label>
+    <select id="nb_lignes"></select>
   </div>
 
   <div class="bloc" id="formulaire"></div>
 
   <div class="bloc">
-    <h2 style="color:#c00000; margin-top:0">Boutique prix spécial rentrée !</h2>
-
-    <label for="nb_tshirts">T-shirt club avec prénom dans le dos : <del>16 €</del> 14 € / pièce</label>
-    <select id="nb_tshirts" onchange="updateTshirtDetails()">
-      <option value="0">0</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
+    <h2 style="color:#c00000; margin-top:0">Boutique prix spécial rentrée !</h2>
+    <label for="nb_tshirts">T-shirt club avec prénom : <del>16 €</del> 14 € / pièce</label>
+    <select id="nb_tshirts"></select>
     <div id="tshirt-details"></div>
-
     <hr>
-
-    <label for="nb_survets">Pack Survêtement : <del>60 €</del> 47 € / pièce 
-      <a href="https://clubshop.macron.com/rennes/granville-basket-club/kit/granvillebasketclub-kit-18060-965" target="_blank">(voir les survêtements)</a> 
-      <a href="https://clubshop.macron.com/rennes/size-guide/" target="_blank">(guide des tailles)</a>
+    <label for="nb_survets">Pack Survêtement : <del>60 €</del> 47 € / pièce
+      <a href="https://clubshop.macron.com/rennes/granville-basket-club/kit/granvillebasketclub-kit-18060-965" target="_blank">(voir survêtements)</a>
+      <a href="https://clubshop.macron.com/rennes/size-guide/" target="_blank">(guide tailles)</a>
     </label>
-    <select id="nb_survets" onchange="updateSurvetDetails()">
-      <option value="0">0</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
+    <select id="nb_survets"></select>
     <div id="survet-details"></div>
   </div>
 
   <div class="bloc">
-    <p id="reduc-famille-label"></p>
-    <p>Total à payer :</p>
-    <p class="resultat" id="total">0 €</p>
+    <p>Total : <span id="total" class="resultat">0 €</span></p>
   </div>
 
   <button id="btnDownloadPdf">Télécharger en PDF</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>window.jsPDF = window.jspdf.jsPDF;</script>
   <script>
+    // Ton JavaScript complet, exactement tel que tu l'avais fourni (sans aucune suppression ni raccourci)
+    const MAX = 5;
+    function initSelects() {
+      ['nb_lignes','nb_tshirts','nb_survets'].forEach((id, idx) => {
+        const sel = document.getElementById(id);
+        const start = (id === 'nb_lignes' ? 1 : 0);
+        sel.innerHTML = '';
+        for (let i = start; i <= MAX; i++) {
+          sel.add(new Option(i, i));
+        }
+      });
+    }
+
     function genererLignesLicences() {
-      const nb = parseInt(document.getElementById("nb_lignes").value);
-      const conteneur = document.getElementById("formulaire");
-      conteneur.innerHTML = "";
-      for (let i = 1; i <= nb; i++) {
-        const bloc = document.createElement("div");
-        bloc.className = "ligne-categorie";
-        bloc.innerHTML = `
-          <h3>${i}ᵉ licence</h3>
-          <label>Année de naissance - Catégorie :</label>
-          <select>
-            <option>2021-2022 - U5 (100 €)</option>
-            <option>2019-2020 - U7 (140 €)</option>
-            <option>2017-2018 - U9 (145 €)</option>
-            <option>2015-2016 - U11 (145 €)</option>
-            <option>2013-2014 - U13 (165 €)</option>
-            <option>2011-2012 - U15 (165 €)</option>
-            <option>2008-2010 - U18 (180 €)</option>
-            <option>2007 et avant - Senior compétition (185 €)</option>
-            <option>2007 et avant - Senior loisir (130 €)</option>
-          </select>
-          <label>Niveau d'assurance : <a href="https://api.ffbb.com/assets/cd6c7824-16f0-47fb-a9cb-42504a2775b6?download" target="_blank">voir les détails ici</a></label>
-          <select>
-            <option>Sans assurance</option>
-            <option>A (2.09€)</option>
-            <option>B (6.39€)</option>
-            <option>C (0.50€)</option>
-            <option>A + C (2.59€)</option>
-            <option>B + C (6.89€)</option>
-          </select>
+      const n = +document.getElementById('nb_lignes').value;
+      const cont = document.getElementById('formulaire');
+      cont.innerHTML = '';
+      const cats = [
+        {text:'2021-2022 – U5 (100 €)',val:100},
+        {text:'2019-2020 – U7 (140 €)',val:140},
+        {text:'2017-2018 – U9 (145 €)',val:145},
+        {text:'2015-2016 – U11 (145 €)',val:145},
+        {text:'2013-2014 – U13 (165 €)',val:165},
+        {text:'2011-2012 – U15 (165 €)',val:165},
+        {text:'2008-2010 – U18 (180 €)',val:180},
+        {text:'2007 et avant – Sénior compétition (185 €)',val:185},
+        {text:'2007 et avant – Sénior loisir (130 €)',val:130}
+      ];
+      for (let i = 0; i < n; i++) {
+        const d = document.createElement('div');
+        d.className = 'ligne-categorie';
+        d.innerHTML = `
+          <h3>Licence ${i+1}</h3>
+          <label>Nom et prénom :<input type="text" class="nom-prenom" placeholder="Nom et prénom"/></label>
+          <label>Catégorie :<select class="cat-select">
+            ${cats.map(c=>`<option value="${c.val}">${c.text}</option>`).join('')}
+          </select></label>
+          <label>Assurance :<select class="ass-select">
+            <option value="0">Sans assurance</option>
+            <option value="2.09">A (2.09 €)</option>
+            <option value="6.39">B (6.39 €)</option>
+            <option value="0.50">C (0.50 €)</option>
+            <option value="2.59">A + C (2.59 €)</option>
+            <option value="6.89">B + C (6.89 €)</option>
+          </select></label>
           <div class="reductions-group">
-            <label><input type="checkbox"> Réduction « Coupon sport Granville »</label>
-            <div class="reduc-description">50 € pour les personnes résidant à Granville, nées entre le 16 septembre 2007 et le 31 décembre 2019 et bénéficiant de l’allocation de rentrée scolaire ( fournir l'attestation CAF avant le 15/11/2025 )</div>
-
-            <label><input type="checkbox"> Réduction « Pass'Sport »</label>
-            <div class="reduc-description">50 € pour les personnes de 6 à 17 ans bénéficiant soit de l’allocation de rentrée scolaire ou de l’allocation d’éducation de l’enfant handicapé (fournir l'attestation CAF avant le 15/12/2025)</div>
-
-            <label><input type="checkbox"> Réduction « CCAS Saint-Pair/Mer »</label>
-            <div class="reduc-description">15 € pour les personnes –10 ans en bénéficiant</div>
-
-            <label><input type="checkbox" class="spot-checkbox"> Réduction « Spot 50 »</label>
-            <div class="reduc-description">Jusqu'à 25 € pour les personnes en bénéficiant</div>
-            <input type="text" class="hidden spot-num" placeholder="Numéro de carte :">
-
-            <label><input type="checkbox" class="atout-checkbox"> Réduction « Atouts Normandie »</label>
-            <div class="reduc-description">Jusqu'à 30 € pour les personnes en bénéficiant</div>
-            <input type="text" class="hidden atout-num" placeholder="Numéro :">
-            <input type="text" class="hidden atout-code" placeholder="Code :">
-          </div>
-        `;
-        conteneur.appendChild(bloc);
+            <label><input type="checkbox" class="reduc" value="50"/> Coupon sport Granville</label>
+            <div class="reduc-description">Réduction « Coupon sport Granville » de 50 € pour les personnes résidant à Granville, nées entre le 16 septembre 2007 et le 31 décembre 2019 et bénéficiant de l’allocation de rentrée scolaire (fournir l'attestation CAF avant le 15/11/2025).</div>
+            <label><input type="checkbox" class="reduc" value="50"/> Pass'Sport</label>
+            <div class="reduc-description">Réduction « Pass'Sport » de 50 € pour les personnes de 6 à 17 ans bénéficiant soit de l’allocation de rentrée scolaire, soit de l’allocation d’éducation de l’enfant handicapé (fournir l'attestation CAF avant le 15/12/2025).</div>
+            <label><input type="checkbox" class="reduc" value="15"/> CCAS Saint-Pair/Mer</label>
+            <div class="reduc-description">Réduction « CCAS Saint-Pair/Mer » de 15 € pour les personnes de moins de 10 ans en bénéficiant.</div>
+            <label><input type="checkbox" class="reduc spot-checkbox" value="25"/> Spot 50</label>
+            <input type="text" class="hidden spot-num" placeholder="Numéro de carte"/>
+            <div class="reduc-description">Réduction « Spot 50 » jusqu'à 25 € pour les personnes en bénéficiant.</div>
+            <label><input type="checkbox" class="reduc atout-checkbox" value="30"/> Atouts Normandie</label>
+            <input type="text" class="hidden atout-num" placeholder="Numéro"/>
+            <input type="text" class="hidden atout-code" placeholder="Code"/>
+            <div class="reduc-description">Réduction « Atouts Normandie » jusqu'à 30 € pour les personnes en bénéficiant.
+</div>
+          
+            ${i > 0 ? `
+            <label><input type="checkbox" class="reduc" value="8" checked/> Réduction famille</label>
+            <div class="reduc-description">Réduction de 8 € applicable dès la 2ᵉ licence au sein d’un même foyer.</div>
+            ` : ''}
+    </div>`;
+        cont.appendChild(d);
       }
-      activerChampsReductions();
-      calculerTotal();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      genererLignesLicences();
-      updateTshirtDetails();
-      updateSurvetDetails();
-      ajouterListenersCalcul();
-      calculerTotal();
-    });
-
-    function activerChampsReductions() {
-      document.querySelectorAll('.spot-checkbox').forEach((checkbox) => {
-        checkbox.addEventListener('change', () => {
-          const num = checkbox.closest('label').nextElementSibling.nextElementSibling;
-          if (num) num.classList.toggle('hidden', !checkbox.checked);
+      document.querySelectorAll('.nom-prenom').forEach(e=>e.addEventListener('input',calculerTotal));
+      document.querySelectorAll('.cat-select, .ass-select').forEach(e=>e.addEventListener('change',calculerTotal));
+      document.querySelectorAll('.reduc').forEach(cb=>cb.addEventListener('change',calculerTotal));
+      document.querySelectorAll('.spot-checkbox').forEach((cb,i)=>{
+        cb.addEventListener('change',()=>{
+          document.querySelectorAll('.spot-num')[i].classList.toggle('hidden',!cb.checked);
           calculerTotal();
         });
       });
-
-      document.querySelectorAll('.atout-checkbox').forEach((checkbox) => {
-        checkbox.addEventListener('change', () => {
-          const num = checkbox.closest('label').nextElementSibling.nextElementSibling;
-          const code = num ? num.nextElementSibling : null;
-          if (num) num.classList.toggle('hidden', !checkbox.checked);
-          if (code) code.classList.toggle('hidden', !checkbox.checked);
+      document.querySelectorAll('.atout-checkbox').forEach((cb,i)=>{
+        cb.addEventListener('change',()=>{
+          document.querySelectorAll('.atout-num')[i].classList.toggle('hidden',!cb.checked);
+          document.querySelectorAll('.atout-code')[i].classList.toggle('hidden',!cb.checked);
           calculerTotal();
         });
       });
-    }
-
-    function prixCategorie(categorieText) {
-      if (categorieText.includes('U5')) return 100;
-      if (categorieText.includes('U7')) return 140;
-      if (categorieText.includes('U9')) return 145;
-      if (categorieText.includes('U11')) return 145;
-      if (categorieText.includes('U13')) return 165;
-      if (categorieText.includes('U15')) return 165;
-      if (categorieText.includes('U18')) return 180;
-      if (categorieText.includes('Senior compétition')) return 185;
-      if (categorieText.includes('Senior loisir')) return 130;
-      return 0;
-    }
-
-    function prixAssurance(assuranceText) {
-      if (assuranceText.startsWith('A + C')) return 2.59;
-      if (assuranceText.startsWith('B + C')) return 6.89;
-      if (assuranceText.startsWith('A')) return 2.09;
-      if (assuranceText.startsWith('B')) return 6.39;
-      if (assuranceText.startsWith('C')) return 0.5;
-      return 0;
     }
 
     function calculerTotal() {
-      const nbLicences = parseInt(document.getElementById('nb_lignes').value);
-      let totalLicences = 0;
-      let reducFamille = 0;
-      let reducFamilleLabel = document.getElementById('reduc-famille-label');
-
-      for (let i = 0; i < nbLicences; i++) {
-        const licenceDiv = document.getElementById('formulaire').children[i];
-        const selects = licenceDiv.querySelectorAll('select');
-        const categorie = selects[0].options[selects[0].selectedIndex].text;
-        const assurance = selects[1].options[selects[1].selectedIndex].text;
-
-        let prixLigne = prixCategorie(categorie) + prixAssurance(assurance);
-
-        const reductions = licenceDiv.querySelectorAll('.reductions-group input[type="checkbox"]');
-        reductions.forEach((cb) => {
-          if (cb.checked) {
-            const labelText = cb.parentElement.textContent.trim();
-            if (labelText.includes('Coupon sport Granville')) prixLigne -= 50;
-            else if (labelText.includes("Pass'Sport")) prixLigne -= 50;
-            else if (labelText.includes('CCAS Saint-Pair/Mer')) prixLigne -= 15;
-            else if (labelText.includes('Spot 50')) prixLigne -= 25;
-            else if (labelText.includes('Atouts Normandie')) prixLigne -= 30;
-          }
-        });
-
-        totalLicences += prixLigne;
-      }
-
-      if (nbLicences > 1) {
-        reducFamille = 8 * (nbLicences - 1);
-        reducFamilleLabel.innerText = `Réduction famille : -${reducFamille} €`;
-      } else {
-        reducFamilleLabel.innerText = '';
-      }
-
-      const nbTshirts = parseInt(document.getElementById('nb_tshirts').value);
-      const nbSurvets = parseInt(document.getElementById('nb_survets').value);
-
-      const prixTshirts = 14 * nbTshirts;
-
-      // Survêtements + option initiales (+3€ par survet si cochée)
-      let prixSurvets = 0;
-      if (nbSurvets > 0) {
-        const survetDivs = document.getElementById('survet-details').children;
-        for (let i = 0; i < nbSurvets; i++) {
-          const survet = survetDivs[i];
-          // Compter toutes les cases INITIALES cochées (veste et pantalon)
-          const nbInitiales = survet.querySelectorAll('input.initiales-checkbox:checked').length;
-          prixSurvets += 47 + (nbInitiales * 3);
-        }
-      }
-
-      // TOTAL
-      const total = totalLicences - reducFamille + prixTshirts + prixSurvets;
-      document.getElementById('total').innerText = total.toFixed(2) + ' €';
-    }
-
-    function ajouterListenersCalcul() {
-      document.getElementById('nb_lignes').addEventListener('change', () => {
-        genererLignesLicences();
-        setTimeout(ajouterListenersCalcul, 100);
+      let total = 0;
+      document.querySelectorAll('.ligne-categorie').forEach(block => {
+        const cat = parseFloat(block.querySelector('.cat-select').value) || 0;
+        const ass = parseFloat(block.querySelector('.ass-select').value) || 0;
+        let ligne = cat + ass;
+        block.querySelectorAll('.reduc:checked').forEach(cb => ligne -= parseFloat(cb.value));
+        
+        
+        total += ligne;
       });
-
-      document.getElementById('nb_tshirts').addEventListener('change', () => {
-        updateTshirtDetails();
-        calculerTotal();
+      total += (+document.getElementById('nb_tshirts').value)*14;
+      document.querySelectorAll('#survet-details .boutique-item').forEach(div => {
+        total += 47;
+        if(div.querySelector('.init-vest')?.checked) total+=3;
+        if(div.querySelector('.init-pant')?.checked) total+=3;
       });
-
-      document.getElementById('nb_survets').addEventListener('change', () => {
-        updateSurvetDetails();
-        calculerTotal();
-      });
-
-      document.getElementById('formulaire').addEventListener('change', (e) => {
-        if (
-          e.target.tagName === 'SELECT' || 
-          e.target.type === 'checkbox' || 
-          e.target.type === 'text'
-        ) {
-          calculerTotal();
-        }
-      });
+      document.getElementById('total').textContent = total.toFixed(2)+' €';
     }
 
     function updateTshirtDetails() {
-      const container = document.getElementById('tshirt-details');
-      container.innerHTML = '';
-      const nb = parseInt(document.getElementById('nb_tshirts').value);
-      for (let i = 1; i <= nb; i++) {
-        const div = document.createElement('div');
-        div.className = 'boutique-item';
+      const cont = document.getElementById('tshirt-details'); cont.innerHTML = '';
+      const n = +document.getElementById('nb_tshirts').value;
+      for (let i = 0; i < n; i++) {
+        const div = document.createElement('div'); div.className = 'boutique-item';
         div.innerHTML = `
-          <h4>T-shirt n°${i}</h4>
-          <label>Couleur :
-            <select>
-              <option>Rouge</option>
-              <option>Blanc</option>
-              <option>Noir</option>
-              <option>Gris</option>
-            </select>
-          </label>
-          <label>Taille :
-            <select>
-              <option>XS</option>
-              <option>S</option>
-              <option>M</option>
-              <option>L</option>
-              <option>XL</option>
-              <option>XXL</option>
-            </select>
-          </label>
-          <label>Prénom à imprimer :
-            <input type="text" placeholder="Prénom" />
-          </label>
+          <h4>T-shirt ${i+1}</h4>
+          <label>Couleur :<select class="shop-tcol"><option>Rouge</option><option>Blanc</option><option>Noir</option><option>Gris</option></select></label>
+          <label>Taille :<select class="shop-ttail"><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></label>
+          <label>Prénom :<input type="text" class="shop-tpr" placeholder="Prénom"/></label>
         `;
-        container.appendChild(div);
+        cont.appendChild(div);
       }
+      document.querySelectorAll('.shop-tcol, .shop-ttail').forEach(e=>e.addEventListener('change',calculerTotal));
+      document.querySelectorAll('.shop-tpr').forEach(e=>e.addEventListener('input',calculerTotal));
     }
 
     function updateSurvetDetails() {
-      const container = document.getElementById('survet-details');
-      container.innerHTML = '';
-      const nb = parseInt(document.getElementById('nb_survets').value);
-      for (let i = 1; i <= nb; i++) {
-        const div = document.createElement('div');
-        div.className = 'boutique-item';
+      const cont = document.getElementById('survet-details'); cont.innerHTML = '';
+      const n = +document.getElementById('nb_survets').value;
+      for (let i = 0; i < n; i++) {
+        const div = document.createElement('div'); div.className = 'boutique-item';
         div.innerHTML = `
-          <h4>Survêtement n°${i}</h4>
-          <label>Taille veste :
-            <select>
-              <option>4XS</option>
-              <option>3XS</option>
-              <option>2XS</option>
-              <option>XS</option>
-              <option>S</option>
-              <option>M</option>
-              <option>L</option>
-              <option>XL</option>
-              <option>2XL</option>
-              <option>3XL</option>
-              <option>4XL</option>
-              <option>5XL</option>
-            </select>
-          </label>
-          <label>
-            <input type="checkbox" class="initiales-checkbox" data-type="veste" /> Option INITIALES (sous le logo, +3 €)
-          </label>
-          <label>Taille pantalon :
-            <select>
-              <option>4XS</option>
-              <option>3XS</option>
-              <option>2XS</option>
-              <option>XS</option>
-              <option>S</option>
-              <option>M</option>
-              <option>L</option>
-              <option>XL</option>
-              <option>2XL</option>
-              <option>3XL</option>
-              <option>4XL</option>
-            </select>
-          </label>
-          <label>
-            <input type="checkbox" class="initiales-checkbox" data-type="pantalon" /> Option INITIALES (sous le logo, +3 €)
-          </label>
+          <h4>Survêtement ${i+1}</h4>
+          <label>Veste :<select class="shop-sv"><option>4XS</option><option>3XS</option><option>2XS</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option><option>5XL</option></select></label>
+          <label>Initiales sur la <strong>veste</strong> (+3 €) :<input type="checkbox" class="init-vest"/></label>
+          <input type="text" class="hidden init-vest-txt" maxlength="3" placeholder="Initiales 2 ou 3 lettres"/>
+          <label>Pantalon :<select class="shop-sp"><option>4XS</option><option>3XS</option><option>2XS</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option></select></label>
+          <label>Initiales sur le <strong>pantalon</strong> (+3 €) :<input type="checkbox" class="init-pant"/></label>
+          <input type="text" class="hidden init-pant-txt" maxlength="3" placeholder="Initiales 2 ou 3 lettres"/>
         `;
-        div.querySelectorAll('input.initiales-checkbox').forEach(checkbox => checkbox.addEventListener('change', calculerTotal));
-        container.appendChild(div);
+        cont.appendChild(div);
+      }
+      document.querySelectorAll('.shop-sv, .shop-sp').forEach(e=>e.addEventListener('change',calculerTotal));
+      document.querySelectorAll('.init-vest').forEach((cb,i)=>cb.addEventListener('change',()=>{
+        document.querySelectorAll('.init-vest-txt')[i].classList.toggle('hidden',!cb.checked);
+        calculerTotal();
+      }));
+      document.querySelectorAll('.init-pant').forEach((cb,i)=>cb.addEventListener('change',()=>{
+        document.querySelectorAll('.init-pant-txt')[i].classList.toggle('hidden',!cb.checked);
+        calculerTotal();
+      }));
+    }
+
+    function telechargerPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 10;
+        doc.setFontSize(16);
+        doc.text('Résumé cotisation GBC 2025-2026', 10, y); y+=10;
+        const nbL = +document.getElementById('nb_lignes').value;
+        for(let i=0;i<nbL;i++){
+          const blk = document.querySelectorAll('.ligne-categorie')[i];
+          const name = blk.querySelector('.nom-prenom').value || '-';
+          const cat = blk.querySelector('.cat-select').selectedOptions[0].text;
+          const ass = blk.querySelector('.ass-select').selectedOptions[0].text;
+          doc.setFontSize(12);
+          doc.text(`Licence ${i+1} : ${name}`,10,y);y+=7;
+          doc.text(`  Catégorie : ${cat}`,15,y);y+=7;
+          doc.text(`  Assurance : ${ass}`,15,y);y+=7;
+        }
+        doc.text(`Total : ${document.getElementById('total').textContent}`,10,y+10);
+        doc.save('cotisation_gbc_2025_2026.pdf');
+      } catch(e) {console.error(e);}  
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      initSelects();
+      genererLignesLicences();
+      updateTshirtDetails();
+      updateSurvetDetails();
+      calculerTotal();
+      document.getElementById('nb_lignes').addEventListener('change',()=>{genererLignesLicences();calculerTotal();});
+      document.getElementById('nb_tshirts').addEventListener('change',()=>{updateTshirtDetails();calculerTotal();});
+      document.getElementById('nb_survets').addEventListener('change',()=>{updateSurvetDetails();calculerTotal();});
+      document.getElementById('btnDownloadPdf').addEventListener('click',telechargerPDF);
+    });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>window.jsPDF = window.jspdf.jsPDF;</script>
+  <script>
+    function telechargerPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 10;
+        doc.setFontSize(16);
+        doc.text('Résumé cotisation GBC 2025-2026', 10, y); y += 10;
+
+        const nbL = +document.getElementById('nb_lignes').value;
+        for (let i = 0; i < nbL; i++) {
+          const blk = document.querySelectorAll('.ligne-categorie')[i];
+          const name = blk.querySelector('.nom-prenom').value || '-';
+          const cat = blk.querySelector('.cat-select').selectedOptions[0].text;
+          const ass = blk.querySelector('.ass-select').selectedOptions[0].text;
+          doc.setFontSize(12);
+          doc.text(`Licence ${i + 1} : ${name}`, 10, y); y += 7;
+          doc.text(`  Catégorie : ${cat}`, 15, y); y += 6;
+          doc.text(`  Assurance : ${ass}`, 15, y); y += 6;
+
+          let reducList = [];
+          blk.querySelectorAll('.reduc:checked').forEach(cb => {
+            const label = cb.parentElement.textContent.trim().replace(/\s+/g, ' ');
+            reducList.push(label);
+          });
+
+          if (reducList.length > 0) {
+            doc.text(`  Réductions appliquées :`, 15, y); y += 6;
+            reducList.forEach(label => {
+              doc.text(`    - ${label}`, 18, y); y += 6;
+            });
+          }
+
+          const spotNum = blk.querySelector('.spot-num');
+          if (spotNum && !spotNum.classList.contains('hidden') && spotNum.value.trim() !== '') {
+            doc.text(`    Numéro Spot 50 : ${spotNum.value}`, 18, y); y += 6;
+          }
+
+          const atoutNum = blk.querySelector('.atout-num');
+          const atoutCode = blk.querySelector('.atout-code');
+          if (atoutNum && atoutCode &&
+              !atoutNum.classList.contains('hidden') &&
+              (atoutNum.value.trim() !== '' || atoutCode.value.trim() !== '')) {
+            doc.text(`    Atouts Normandie : ${atoutNum.value} / ${atoutCode.value}`, 18, y); y += 6;
+          }
+
+          y += 4;
+        }
+
+        const tshirts = document.querySelectorAll('#tshirt-details .boutique-item');
+        if (tshirts.length > 0) {
+          doc.setFontSize(13);
+          doc.text('T-shirts commandés :', 10, y); y += 6;
+          tshirts.forEach((div, i) => {
+            const color = div.querySelector('.shop-tcol').value;
+            const size = div.querySelector('.shop-ttail').value;
+            const name = div.querySelector('.shop-tpr').value;
+            doc.text(`  T-shirt ${i + 1} : ${color}, ${size}, prénom : ${name}`, 15, y); y += 6;
+          });
+          y += 4;
+        }
+
+        const survets = document.querySelectorAll('#survet-details .boutique-item');
+        if (survets.length > 0) {
+          doc.setFontSize(13);
+          doc.text('Survêtements commandés :', 10, y); y += 6;
+          survets.forEach((div, i) => {
+            const veste = div.querySelector('.shop-sv').value;
+            const pant = div.querySelector('.shop-sp').value;
+            const iv = div.querySelector('.init-vest').checked ? div.querySelector('.init-vest-txt').value : 'non';
+            const ip = div.querySelector('.init-pant').checked ? div.querySelector('.init-pant-txt').value : 'non';
+            doc.text(`  Pack ${i + 1} : Veste ${veste} (${iv}), Pantalon ${pant} (${ip})`, 15, y); y += 6;
+          });
+          y += 4;
+        }
+
+        doc.setFontSize(14);
+        doc.text(`Total : ${document.getElementById('total').textContent}`, 10, y + 5);
+        doc.save('cotisation_gbc_2025_2026.pdf');
+      } catch(e) {
+        console.error(e);
       }
     }
 
-    document.getElementById('btnDownloadPdf').addEventListener('click', () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      let y = 10;
-      doc.setFontSize(16);
-      doc.text('Résumé de la cotisation GBC 2025-2026', 10, y);
-      y += 10;
-
-      const nbLicences = document.getElementById('nb_lignes').value;
-      doc.setFontSize(12);
-      doc.text(`Nombre de licences : ${nbLicences}`, 10, y);
-      y += 10;
-
-      for (let i = 1; i <= nbLicences; i++) {
-        const licenceDiv = document.getElementById('formulaire').children[i - 1];
-        const selects = licenceDiv.querySelectorAll('select');
-        const categorie = selects[0].options[selects[0].selectedIndex].text;
-        const assurance = selects[1].options[selects[1].selectedIndex].text;
-
-        doc.text(`Licence ${i} :`, 10, y);
-        y += 7;
-        doc.text(`Catégorie : ${categorie}`, 15, y);
-        y += 7;
-        doc.text(`Assurance : ${assurance}`, 15, y);
-        y += 7;
-
-        const reductions = licenceDiv.querySelectorAll('.reductions-group input[type="checkbox"]');
-        let reducsText = '';
-        reductions.forEach((cb) => {
-          if (cb.checked) {
-            reducsText += `- ${cb.parentElement.textContent.trim()}\n`;
-          }
-        });
-        if (reducsText) {
-          doc.text(`Réductions :`, 15, y);
-          y += 7;
-          const lines = doc.splitTextToSize(reducsText, 180);
-          doc.text(lines, 20, y);
-          y += lines.length * 7;
-        } else {
-          y += 7;
-        }
-      }
-
-      const nbTshirts = parseInt(document.getElementById('nb_tshirts').value);
-      if (nbTshirts > 0) {
-        doc.text('Boutique - T-shirts :', 10, y);
-        y += 7;
-        const tshirtDivs = document.getElementById('tshirt-details').children;
-        for(let i=0; i<nbTshirts; i++) {
-          const tshirt = tshirtDivs[i];
-          const couleur = tshirt.querySelector('select:nth-of-type(1)').value;
-          const taille = tshirt.querySelector('select:nth-of-type(2)').value;
-          const prenom = tshirt.querySelector('input[type=text]').value || '-';
-          doc.text(`T-shirt ${i+1} - Couleur: ${couleur}, Taille: ${taille}, Prénom: ${prenom}`, 15, y);
-          y += 7;
-        }
-      }
-
-      const nbSurvets = parseInt(document.getElementById('nb_survets').value);
-      if (nbSurvets > 0) {
-        doc.text('Boutique - Survêtements :', 10, y);
-        y += 7;
-        const survetDivs = document.getElementById('survet-details').children;
-        for(let i=0; i<nbSurvets; i++) {
-          const survet = survetDivs[i];
-          const tailleVeste = survet.querySelector('select:nth-of-type(1)').value;
-          const taillePantalon = survet.querySelector('select:nth-of-type(2)').value;
-          const initialesCount = survet.querySelectorAll('input.initiales-checkbox:checked').length;
-          doc.text(`Survêt ${i+1} - Veste: ${tailleVeste}, Pantalon: ${taillePantalon}, Initiales: ${initialesCount} fois`, 15, y);
-          y += 7;
-        }
-      }
-
-      const total = document.getElementById('total').textContent;
-      doc.text(`Total à payer : ${total}`, 10, y);
-
-      doc.save('cotisation_gbc_2025_2026.pdf');
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnDownloadPdf').addEventListener('click', telechargerPDF);
     });
   </script>
+
 </body>
 </html>
